@@ -1,6 +1,6 @@
 import express from "express"
 import multer from "multer"
-import { create } from "../controllers/restaurant.controller.js"
+import { create, getRestaurant, updateRestaurant } from "../controllers/restaurant.controller.js"
 
 const RestaurantRouter = express.Router()
 
@@ -13,5 +13,7 @@ const upload = multer({
  })
 
 RestaurantRouter.post("/create",upload.single("imageFile"), create)
+RestaurantRouter.get("/", getRestaurant)
+RestaurantRouter.put("/update",upload.single("imageFile"), updateRestaurant)
 
 export default RestaurantRouter

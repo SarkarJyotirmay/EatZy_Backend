@@ -201,7 +201,7 @@ export const updateUserProfile = async (req, res) => {
     email = email.trim().toLowerCase(); // Normalize
 
     const user = await UserModel.findOne({ email });
-    console.log("User: ", user);
+    // console.log("User: ", user);
     
 
     if (!user) {
