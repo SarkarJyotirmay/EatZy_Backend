@@ -27,7 +27,10 @@ mongoose
   })
  
 app.use(express.json());
-app.use(cors());
+// app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_ORIGIN, // your frontend URL
+}))
 
 // routes
 app.use("/api/v1/user", UserRouter)
@@ -35,5 +38,5 @@ app.use("/api/v1/auth",auth, statelessAuthRouter)
 app.use("/api/v1/restaurant", auth, RestaurantRouter)
 
 
-
-app.listen(process.env.PORT, () => console.log("Server is up and runnning"));
+const PORT = process.env.PORT || 8080
+app.listen(PORT, () => console.log("Server is up and runnning"));
