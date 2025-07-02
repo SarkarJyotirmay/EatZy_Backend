@@ -1,6 +1,7 @@
 import RestaurantModel from "../model/restaurant.model.js";
 import cloudinary from "cloudinary";
 
+// utility function 
 const uploadImage = async (file) => {
   const base64Image = Buffer.from(file.buffer).toString("base64");
   const dataURI = `data:${file.mimetype};base64,${base64Image}`;
@@ -9,6 +10,7 @@ const uploadImage = async (file) => {
   return uploadResponse.url;
 };
 
+// ! Create user restaurant
 export const create = async (req, res) => {
   //1. check if user already an restaurant sent response that can't create multiple restaurant
   // 2. create data uri string
@@ -54,6 +56,7 @@ export const create = async (req, res) => {
   }
 };
 
+// ! get user restaurant
 export const getRestaurant = async (req, res) => {
   try {
     const restaurant = await RestaurantModel.findOne({ userId: req.user._id });
@@ -75,6 +78,7 @@ export const getRestaurant = async (req, res) => {
   }
 };
 
+// ! update user restaurant
 export const updateRestaurant = async (req, res) => {
   console.log("update restaurant called");
   console.log("req.body: ",req.body);
@@ -127,3 +131,79 @@ export const updateRestaurant = async (req, res) => {
     });
   }
 };
+
+// ! List of restaurants based on city
+// /restaurant/list/:city/?searchQuery
+export const getListRestaurant = async(req, res)=>{
+  console.log("restaurants list api hit");
+  
+   try {
+    const city = req.params.city;
+
+    const searchQuery = req.query.searchQuery || "";
+    const selectedCuisines = req.query.selectedCuisines || "";
+    const sortOption = req.query.sortOption || "updatedAt";
+    const page = parseInt(req.query.page) || 1;
+
+    let query = {}; 
+
+    query["city"] = new RegExp(city, "i");
+
+    const cityCheck = await RestaurantModel.countDocuments(query);
+    if (cityCheck === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "no search matches for restaurant",
+        data: [],
+        pagination: {
+          total: 0,
+          page: 1,
+          pages: 1,
+        },
+      });
+    }
+
+    if (selectedCuisines) {
+      // selected cuisines = italian,indian,pizza
+      const cuisinesArray = selectedCuisines
+        .split(",")
+        .map((cuisine) => new RegExp(cuisine, "i"));
+
+      query["cuisines"] = { $all: cuisinesArray };
+    }
+
+    if (searchQuery) {
+      const searchRegex = new RegExp(searchQuery, "i");
+      query["$or"] = [
+        { restaurantName: searchRegex },
+        { cuisines: { $in: [searchRegex] } },
+      ];
+    }
+
+    const pageSize = 10 ;
+    const skip = (page - 1) * pageSize;
+
+    const restaurants = await RestaurantModel.find(query)
+      .sort({ [sortOption]: 1 })
+      .skip(skip)
+      .limit(pageSize)
+      .lean();
+
+    const total = await RestaurantModel.countDocuments(query);
+
+    const response = {
+      success: true,
+      data: restaurants,
+      pagination: {
+        total,
+        page,
+        pages: Math.ceil(total / pageSize),
+      },
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.error("Error in searchRestaurant:", error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+}
