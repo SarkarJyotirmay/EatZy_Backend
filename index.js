@@ -7,6 +7,9 @@ import statelessAuthRouter from "./routes/statelessAuth.routes.js"
 import { auth } from "./middlewares/auth.middleware.js"
 import { v2 as cloudinary } from 'cloudinary';
 import RestaurantRouter from "./routes/restaurant.routes.js"
+import CartRouter from "./routes/cart.routes.js"
+import OrderModel from "./model/order.model.js"
+import OrderRouter from "./routes/order.routes.js"
 
 dotenv.config()
 
@@ -39,6 +42,8 @@ console.log(process.env.FRONTEND_ORIGIN);
 app.use("/api/v1/user", UserRouter)
 app.use("/api/v1/auth",auth, statelessAuthRouter)
 app.use("/api/v1/restaurant", auth, RestaurantRouter)
+app.use("/api/v1/cart", auth, CartRouter)
+app.use("/api/v1/order", auth, OrderRouter)
 
 
 const PORT = process.env.PORT || 8080
