@@ -10,6 +10,7 @@ import RestaurantRouter from "./routes/restaurant.routes.js"
 import CartRouter from "./routes/cart.routes.js"
 import OrderModel from "./model/order.model.js"
 import OrderRouter from "./routes/order.routes.js"
+import PaymentRouter from "./routes/payment.routes.js"
 
 dotenv.config()
 
@@ -44,6 +45,7 @@ app.use("/api/v1/auth",auth, statelessAuthRouter)
 app.use("/api/v1/restaurant", auth, RestaurantRouter)
 app.use("/api/v1/cart", auth, CartRouter)
 app.use("/api/v1/order", auth, OrderRouter)
+app.use("/api/v1/payment", auth, PaymentRouter)
 
 
 const PORT = process.env.PORT || 8080

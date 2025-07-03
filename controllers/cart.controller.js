@@ -3,22 +3,34 @@ import RestaurantModel from "../model/restaurant.model.js";
 
 // GET /api/cart - Get current user's cart
 export const getCart = async (req, res) => {
-    console.log("get cart hit");
-    
+  console.log("get cart hit");
+
   const { _id } = req.user; // userId
   const userId = _id;
 
   try {
     const cart = await CartModel.findOne({ userId });
+
     if (!cart) {
-      return res.status(400).json({ success: false, message: "No cart found" });
+      // Return empty cart structure instead of 400 error
+      return res.status(200).json({
+        success: true,
+        data: {
+          userId,
+          restaurantId: null,
+          restaurantName: null,
+          items: [],
+        },
+      });
     }
+
     res.status(200).json({ success: true, data: cart });
   } catch (error) {
     console.error("Get cart error:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
 
 // POST /api/cart/add - Add item to cart
 export const addToCart = async (req, res) => {
