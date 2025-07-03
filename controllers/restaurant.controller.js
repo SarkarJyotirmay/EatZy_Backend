@@ -1,7 +1,7 @@
 import RestaurantModel from "../model/restaurant.model.js";
 import cloudinary from "cloudinary";
 
-// utility function 
+// utility function
 const uploadImage = async (file) => {
   const base64Image = Buffer.from(file.buffer).toString("base64");
   const dataURI = `data:${file.mimetype};base64,${base64Image}`;
@@ -35,7 +35,7 @@ export const create = async (req, res) => {
       });
     }
 
-    const imageUrl = await uploadImage(req.file)
+    const imageUrl = await uploadImage(req.file);
 
     const restaurant = await RestaurantModel.create({
       ...req.body,
@@ -56,7 +56,7 @@ export const create = async (req, res) => {
   }
 };
 
-// ! get user restaurant
+// ! get user restaurant -> created by user -> shown in ManageRestaurant part on Front
 export const getRestaurant = async (req, res) => {
   try {
     const restaurant = await RestaurantModel.findOne({ userId: req.user._id });
@@ -81,16 +81,14 @@ export const getRestaurant = async (req, res) => {
 // ! update user restaurant
 export const updateRestaurant = async (req, res) => {
   console.log("update restaurant called");
-  console.log("req.body: ",req.body);
-  
-  
+  console.log("req.body: ", req.body);
+
   try {
     const restaurant = await RestaurantModel.findOne({
       userId: req.user._id,
     });
 
-    console.log("Restaurant: ",restaurant);
-    
+    console.log("Restaurant: ", restaurant);
 
     if (!restaurant) {
       return res.status(404).json({
@@ -109,22 +107,21 @@ export const updateRestaurant = async (req, res) => {
 
     if (req.file) {
       console.log("Image file is present to be update");
-      
-    const imageUrl =  await uploadImage(req.file)
-     restaurant.imageUrl = imageUrl
+
+      const imageUrl = await uploadImage(req.file);
+      restaurant.imageUrl = imageUrl;
     }
 
-   await restaurant.save()
-   console.log("Restaurant after update: ", restaurant);
-   
+    await restaurant.save();
+    console.log("Restaurant after update: ", restaurant);
 
-   res.json({
-    success: true,
-    restaurant
-   })
+    res.json({
+      success: true,
+      restaurant,
+    });
   } catch (error) {
     console.log("Error in updating restaurant", error);
-    
+
     res.status(500).json({
       success: false,
       message: "Unable to update restaurant",
@@ -134,10 +131,10 @@ export const updateRestaurant = async (req, res) => {
 
 // ! List of restaurants based on city
 // /restaurant/list/:city/?searchQuery
-export const getListRestaurant = async(req, res)=>{
+export const getListRestaurant = async (req, res) => {
   console.log("restaurants list api hit");
-  
-   try {
+
+  try {
     const city = req.params.city;
 
     const searchQuery = req.query.searchQuery || "";
@@ -145,7 +142,7 @@ export const getListRestaurant = async(req, res)=>{
     const sortOption = req.query.sortOption || "updatedAt";
     const page = parseInt(req.query.page) || 1;
 
-    let query = {}; 
+    let query = {};
 
     query["city"] = new RegExp(city, "i");
 
@@ -180,7 +177,7 @@ export const getListRestaurant = async(req, res)=>{
       ];
     }
 
-    const pageSize = 10 ;
+    const pageSize = 10;
     const skip = (page - 1) * pageSize;
 
     const restaurants = await RestaurantModel.find(query)
@@ -206,4 +203,30 @@ export const getListRestaurant = async(req, res)=>{
     console.error("Error in searchRestaurant:", error);
     res.status(500).json({ message: "Something went wrong" });
   }
-}
+};
+
+// ! get restaurant by id
+export const getRestaurantById = async (req, res) => {
+  try {
+    const restaurantId = req.params.id;
+
+    const restaurant = await RestaurantModel.findById(restaurantId);
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        message: "restaurant not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      restaurant,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "something went wrong",
+    });
+  }
+};

@@ -32,6 +32,9 @@ app.use(cors({
   origin: process.env.FRONTEND_ORIGIN, // your frontend URL
 }))
 
+console.log(process.env.FRONTEND_ORIGIN);
+
+
 // routes
 app.use("/api/v1/user", UserRouter)
 app.use("/api/v1/auth",auth, statelessAuthRouter)
@@ -40,3 +43,4 @@ app.use("/api/v1/restaurant", auth, RestaurantRouter)
 
 const PORT = process.env.PORT || 8080
 app.listen(PORT, () => console.log("Server is up and runnning"));
+ 
