@@ -201,7 +201,7 @@ export const getListRestaurant = async (req, res) => {
     res.json(response);
   } catch (error) {
     console.error("Error in searchRestaurant:", error);
-    res.status(500).json({ message: "Something went wrong" });
+    res.status(500).json({ success: false, message: "Something went wrong" });
   }
 };
 

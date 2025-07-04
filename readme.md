@@ -493,14 +493,13 @@ Updates the extended `userProfile` for a user, including nickname, description, 
 
 ### 🔗 Full URL `https://zomato-clone-backend-al0h.onrender.com/api/v1/user/update-profile`
 
-
 ---
 
 ### 📥 Request Headers
 
-| Key           | Value             |
-|---------------|------------------|
-| Content-Type  | application/json |
+| Key          | Value            |
+| ------------ | ---------------- |
+| Content-Type | application/json |
 
 ---
 
@@ -518,7 +517,9 @@ Updates the extended `userProfile` for a user, including nickname, description, 
 ```
 
 ## RESPONSES =>
+
 ### If Successful
+
 ```json
 {
   "success": true,
@@ -533,21 +534,27 @@ Updates the extended `userProfile` for a user, including nickname, description, 
   }
 }
 ```
+
 ### If user not found
+
 ```json
 {
   "success": false,
   "message": "User not found"
 }
 ```
+
 ### If Error occurs at backend
+
 ```json
 {
   "success": false,
   "message": "Failed to add userProfile to user data"
 }
 ```
+
 ## Example Use case
+
 ```js
 curl -X POST https://zomato-clone-backend-al0h.onrender.com/api/v1/user/update-profile \
 -H "Content-Type: application/json" \
@@ -571,22 +578,21 @@ Fetches the `userProfile` data (nickname, preferences, etc.) for a given user us
 
 ### 🔗 Full URL `https://zomato-clone-backend-al0h.onrender.com/api/v1/user/user-profile`
 
-
 ---
 
 ### 📥 Request Headers
 
-| Key           | Value             |
-|---------------|------------------|
-| Content-Type  | application/json |
+| Key          | Value            |
+| ------------ | ---------------- |
+| Content-Type | application/json |
 
 ---
 
 ### 🧾 Query Parameter
 
-| Key   | Type   | Required | Description               |
-|-------|--------|----------|---------------------------|
-| email | String | ✅ Yes   | User's registered email   |
+| Key   | Type   | Required | Description             |
+| ----- | ------ | -------- | ----------------------- |
+| email | String | ✅ Yes   | User's registered email |
 
 **Example:**  
 `/user/user-profile?email=john.doe@example.com`
@@ -609,7 +615,9 @@ Fetches the `userProfile` data (nickname, preferences, etc.) for a given user us
   }
 }
 ```
+
 ### If email not provided
+
 ```json
 {
   "success": false,
@@ -618,6 +626,7 @@ Fetches the `userProfile` data (nickname, preferences, etc.) for a given user us
 ```
 
 ### If user is not found
+
 ```json
 {
   "success": false,
@@ -626,6 +635,7 @@ Fetches the `userProfile` data (nickname, preferences, etc.) for a given user us
 ```
 
 ### If Error occurs at backend
+
 ```json
 {
   "success": false,
@@ -634,11 +644,599 @@ Fetches the `userProfile` data (nickname, preferences, etc.) for a given user us
 ```
 
 ## Example use case
+
 ```js
 curl -X GET "https://zomato-clone-backend-al0h.onrender.com/api/v1/user/user-profile?email=john.doe@example.com" \
 -H "Content-Type: application/json"
 ```
 
+## 🧭 Stateless Auth Check (Bypass Login), using token
+
+## 🔐 GET `/auth`
+
+Returns the authenticated user’s data by verifying the JWT token.  
+This route is useful for checking if a user is already logged in (e.g., on app reload).
+
+---
+
+### 🔗 Full URL `https://zomato-clone-backend-al0h.onrender.com/api/v1/auth/stateless-login`
+
+---
+
+### 📥 Request Headers
+
+| Key           | Value                |
+| ------------- | -------------------- |
+| Authorization | Bearer `<JWT_TOKEN>` |
+
+---
+
+### 📦 Request Payload
+
+> 🔸 No request body is needed — only a valid token is required in headers.
+
+---
+
+## ✅ RESPONSES
+
+### 🔸 If token is valid
+
+```json
+{
+  "success": true,
+  "message": "Bypassed login via state",
+  "user": {
+    "_id": "64ff6c1e2c8f4f001c23e9a9",
+    "firstName": "John",
+    "email": "john.doe@example.com",
+    "role": "CUSTOMER",
+    "address": {
+      "addressLine1": "123 Main Street",
+      "addressLine2": "Apt 4B",
+      "landmark": "Near Park",
+      "city": "Kolkata",
+      "state": "West Bengal",
+      "pincode": "700001"
+    }
+  }
+}
+```
+
+### 🔸If token is missing or invalid
+
+```json
+{
+  "success": false,
+  "message": "Invalid or missing token"
+}
+```
+
+## Example use case
+
+```json
+curl -X GET https://zomato-clone-backend-al0h.onrender.com/api/v1/auth/stateless-login
+-H "Authorization: Bearer <YOUR_VALID_JWT_TOKEN>"
+```
+
+## 🍽️ Restaurant Module
+
+> 📌 **Base URL:** `https://zomato-clone-backend-al0h.onrender.com/api/v1/restaurant`  
+> 🔐 **Note:** All routes require a valid JWT token in the `Authorization` header.
+
+| HTTP Method | Endpoint      | Action Description                                            | Payload (Body/FormData) |
+| ----------- | ------------- | ------------------------------------------------------------- | ----------------------- |
+| POST        | `/create`     | Create a restaurant (includes image upload)                   | ✅ Yes (FormData)       |
+| GET         | `/`           | Get the restaurant created by the logged-in user              | ❌                      |
+| PUT         | `/update`     | Update logged-in user's restaurant (optional image update)    | ✅ Yes (FormData)       |
+| GET         | `/list/:city` | List restaurants by city with optional filters/sorting/paging | ❌ (uses query params)  |
+| GET         | `/by-id/:id`  | Get a restaurant by its ID                                    | ❌                      |
+
+### 🍽️ Create Restaurant
+
+## 🏗️ POST `/restaurant/create`
+
+Creates a new restaurant for the logged-in user.  
+Only one restaurant per user is allowed. An image is required for creation.
+
+---
+
+### 🔗 Full URL `https://zomato-clone-backend-al0h.onrender.com/api/v1/restaurant/create`
+
+---
+
+### 📥 Request Headers
+
+| Key           | Value                |
+| ------------- | -------------------- |
+| Content-Type  | multipart/form-data  |
+| Authorization | Bearer `<JWT_TOKEN>` |
+
+---
+
+### 📦 Request Payload (FormData)
+
+| Field          | Type   | Required | Description                      |
+| -------------- | ------ | -------- | -------------------------------- |
+| restaurantName | String | ✅ Yes   | Name of the restaurant           |
+| city           | String | ✅ Yes   | City location                    |
+| state          | String | ✅ Yes   | State location                   |
+| deliveryPrice  | Number | ✅ Yes   | Delivery charge                  |
+| deliveryTime   | Number | ✅ Yes   | Estimated delivery time (in min) |
+| cuisines       | Array  | ✅ Yes   | e.g. `["Indian", "Italian"]`     |
+| menuItems      | Array  | ✅ Yes   | Optional at this stage           |
+| imageFile      | File   | ✅ Yes   | Restaurant cover image           |
+
+---
+
+## ✅ RESPONSES
+
+### 🔸 If successful
+
+```json
+{
+  "success": true,
+  "restaurant": {
+    "_id": "64ff6c1e2c8f4f001c23e9a9",
+    "restaurantName": "Spice Haven",
+    "city": "Kolkata",
+    "state": "West Bengal",
+    "deliveryPrice": 40,
+    "deliveryTime": 30,
+    "imageUrl": "https://res.cloudinary.com/.../image.jpg",
+    "userId": "64ff6c1e2c8f4f001c23e9a1",
+    ...
+  }
+}
+```
+
+### If user already has an restaurant
+
+```json
+{
+  "success": false,
+  "message": "User already have an restaurant"
+}
+```
+
+### If image is missing
+
+```json
+{
+  "success": false,
+  "message": "Image file is missing"
+}
+```
+
+### If error occurs
+
+```json
+{
+  "success": false,
+  "message": "Could not create restaurant, something went wrong"
+}
+```
+
+## Example use cases
+
+```js
+curl -X POST https://zomato-clone-backend-al0h.onrender.com/api/v1/restaurant/create \
+-H "Authorization: Bearer <JWT_TOKEN>" \
+-F "restaurantName=Spice Haven" \
+-F "city=Kolkata" \
+-F "state=West Bengal" \
+-F "deliveryPrice=40" \
+-F "deliveryTime=30" \
+-F "cuisines[]=Indian" \
+-F "cuisines[]=Chinese" \
+-F "imageFile=@/path/to/image.jpg"
+```
+
+### 🔍 Get Your Restaurant
+
+## 📄 GET `/restaurant`
+
+Fetches the restaurant created by the **currently logged-in user** (based on their JWT token).
+
+---
+
+### 🔗 Full URL `https://zomato-clone-backend-al0h.onrender.com/api/v1/restaurant`
+
+---
+
+### 📥 Request Headers
+
+| Key           | Value                |
+| ------------- | -------------------- |
+| Authorization | Bearer `<JWT_TOKEN>` |
+
+---
+
+### 📦 Request Payload
+
+> ❌ No request body required.
+
+---
+
+## ✅ RESPONSES
+
+### 🔸 If restaurant exists
+
+```json
+{
+  "success": true,
+  "restaurant": {
+    "_id": "64ff6c1e2c8f4f001c23e9a9",
+    "restaurantName": "Spice Haven",
+    "city": "Kolkata",
+    "state": "West Bengal",
+    "deliveryPrice": 40,
+    "deliveryTime": 30,
+    "imageUrl": "https://res.cloudinary.com/.../image.jpg",
+    "userId": "64ff6c1e2c8f4f001c23e9a1",
+    ...
+  }
+}
+```
+
+### If user has not created an restaurant
+
+```json
+{
+  "success": false,
+  "message": "Restaurant not found"
+}
+```
+
+### If error occurs at backend
+
+```json
+{
+  "success": false,
+  "message": "Can't get restaurant from DB"
+}
+```
+
+## Example Use case
+
+```js
+curl -X GET https://zomato-clone-backend-al0h.onrender.com/api/v1/restaurant \
+-H "Authorization: Bearer <JWT_TOKEN>"
+
+```
+
+### 🏪 Get Logged-in User's Restaurant
+
+## 📄 GET `/restaurant`
+
+Retrieves the restaurant created by the currently authenticated user (using their token).
+
+---
+
+### 🔗 Full URL `https://zomato-clone-backend-al0h.onrender.com/api/v1/restaurant`
+
+---
+
+### 📥 Request Headers
+
+| Key           | Value                |
+| ------------- | -------------------- |
+| Authorization | Bearer `<JWT_TOKEN>` |
+
+---
+
+### 📦 Request Payload
+
+> ❌ No request body required.
+
+---
+
+## ✅ RESPONSES
+
+### 🔸 If restaurant exists
+
+```json
+{
+  "success": true,
+  "restaurant": {
+    "_id": "64ff6c1e2c8f4f001c23e9a9",
+    "restaurantName": "Spice Haven",
+    "city": "Kolkata",
+    "state": "West Bengal",
+    "deliveryPrice": 40,
+    "deliveryTime": 30,
+    "imageUrl": "https://res.cloudinary.com/.../image.jpg",
+    "userId": "64ff6c1e2c8f4f001c23e9a1",
+    ...
+  }
+}
+```
+
+### If restaurant not found
+
+```json
+{
+  "success": false,
+  "message": "Restaurant not found"
+}
+```
+
+### If error occurs at backend
+
+```json
+{
+  "success": false,
+  "message": "Can't get restaurant from DB"
+}
+```
+
+## Example use case
+
+```js
+curl -X GET https://zomato-clone-backend-al0h.onrender.com/api/v1/restaurant
+-H "Authorization: Bearer <JWT_TOKEN>"
+```
+
+### ✏️ Update Restaurant
+
+## 🔧 PUT `/restaurant/update`
+
+Updates the restaurant created by the currently logged-in user.  
+Supports updating fields like name, city, delivery info, cuisines, menu items, and optionally a new image.
+
+---
+
+### 🔗 Full URL `https://zomato-clone-backend-al0h.onrender.com/api/v1/restaurant/update`
+
+---
+
+### 📥 Request Headers
+
+| Key           | Value                |
+| ------------- | -------------------- |
+| Content-Type  | multipart/form-data  |
+| Authorization | Bearer `<JWT_TOKEN>` |
+
+---
+
+### 📦 Request Payload (FormData)
+
+| Field          | Type   | Required    | Description                      |
+| -------------- | ------ | ----------- | -------------------------------- |
+| restaurantName | String | ✅ Yes      | Updated restaurant name          |
+| city           | String | ✅ Yes      | Updated city                     |
+| state          | String | ✅ Yes      | Updated state                    |
+| deliveryPrice  | Number | ✅ Yes      | Updated delivery price           |
+| deliveryTime   | Number | ✅ Yes      | Updated delivery time in minutes |
+| cuisines       | Array  | ✅ Yes      | Updated cuisines list            |
+| menuItems      | Array  | ✅ Yes      | Updated menu items               |
+| imageFile      | File   | ❌ Optional | New image (if updating image)    |
+
+---
+
+## ✅ RESPONSES
+
+### 🔸 If update is successful
+
+```json
+{
+  "success": true,
+  "restaurant": {
+    "_id": "64ff6c1e2c8f4f001c23e9a9",
+    "restaurantName": "Updated Haven",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "deliveryPrice": 50,
+    "deliveryTime": 25,
+    "imageUrl": "https://res.cloudinary.com/.../new-image.jpg",
+    "cuisines": ["Indian", "South Indian"],
+    "menuItems": [...],
+    "userId": "64ff6c1e2c8f4f001c23e9a1"
+  }
+}
+```
+
+### If restaurant not found
+
+```json
+{
+  "success": false,
+  "message": "Restaurant not found"
+}
+```
+
+### If error occurs at backend
+
+```json
+{
+  "success": false,
+  "message": "Unable update restairant"
+}
+```
+
+### Example use case
+
+```js
+curl -X PUT https://zomato-clone-backend-al0h.onrender.com/api/v1/restaurant/update
+-H "Authorization: Bearer <JWT_TOKEN>" \
+-F "restaurantName=Updated Haven" \
+-F "city=Mumbai" \
+-F "state=Maharashtra" \
+-F "deliveryPrice=50" \
+-F "deliveryTime=25" \
+-F "cuisines[]=Indian" \
+-F "cuisines[]=South Indian" \
+-F "menuItems[]=\"Paneer Tikka\"" \
+-F "imageFile=@/path/to/new-image.jpg"
+```
+
+### 🌆 Get Restaurant List by City (with Filters)
+
+## 🧭 GET `/restaurant/list/:city`
+
+Returns a list of restaurants based on the city, with optional filters like search, cuisines, sorting, and pagination.
+
+---
+
+### 🔗 Full URL `https://zomato-clone-backend-al0h.onrender.com/api/v1/restaurant/list/:city`
+
+** Example with search query **
+`https://zomato-clone-backend-al0h.onrender.com/api/v1/restaurant/list/Kolkata?searchQuery=pizza&selectedCuisines=Italian,Fast%20Food&page=2&sortOption=updatedAt`
+
+---
+
+### 📥 Request Headers
+
+| Key           | Value                |
+| ------------- | -------------------- |
+| Authorization | Bearer `<JWT_TOKEN>` |
+
+---
+
+### 📦 Request Params
+
+| Param | Type   | Required | Description                |
+| ----- | ------ | -------- | -------------------------- |
+| city  | String | ✅ Yes   | Name of the city to filter |
+
+---
+
+### 🔍 Optional Query Parameters
+
+| Query Param        | Type   | Description                                            |
+| ------------------ | ------ | ------------------------------------------------------ |
+| `searchQuery`      | String | Keyword to match restaurant name or cuisines           |
+| `selectedCuisines` | String | Comma-separated list of cuisines (e.g. `Indian,Pizza`) |
+| `sortOption`       | String | Field to sort by (e.g. `updatedAt`, `deliveryTime`)    |
+| `page`             | Number | Pagination page number (default: 1)                    |
+
+---
+
+## ✅ RESPONSES
+
+### 🔸 If matching restaurants found
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "_id": "64ff6c1e2c8f4f001c23e9a9",
+      "restaurantName": "Pizza Palace",
+      "city": "Kolkata",
+      "cuisines": ["Italian", "Fast Food"],
+      ...
+    }
+  ],
+  "pagination": {
+    "total": 14,
+    "page": 2,
+    "pages": 2
+  }
+}
+```
+
+### If no matching restaurant found
+
+```json
+{
+  "success": false,
+  "message": "no search matches for restaurant",
+  "data": [],
+  "pagination": {
+    "total": 0,
+    "page": 1,
+    "pages": 1
+  }
+}
+```
+
+### If error occurs at backend
+
+```json
+{
+  "success": false,
+  "message": "Something went wrong"
+}
+```
+
+### Example use case
+
+```js
+curl -X GET "https://zomato-clone-backend-al0h.onrender.com/api/v1/restaurant/list/Kolkata?searchQuery=pizza&selectedCuisines=Italian,Fast%20Food&page=2" \
+-H "Authorization: Bearer <JWT_TOKEN>"
+```
+
+### 🆔 Get Restaurant by ID
+
+## 🔍 GET `/restaurant/by-id/:id`
+
+Fetches a single restaurant using its MongoDB Object ID.
+
+---
+
+### 🔗 Full URL `https://zomato-clone-backend-al0h.onrender.com/api/v1/restaurant/by-id/:id`
+
+** Example URL *** 
+`https://zomato-clone-backend-al0h.onrender.com/api/v1/restaurant/by-id/64ff6c1e2c8f4f001c23e9a9`
 
 
+---
 
+### 📥 Request Headers
+
+| Key           | Value                |
+|---------------|----------------------|
+| Authorization | Bearer `<JWT_TOKEN>` |
+
+---
+
+### 📦 Request Params
+
+| Param | Type   | Required | Description             |
+|-------|--------|----------|-------------------------|
+| `id`  | String | ✅ Yes   | MongoDB Restaurant ID   |
+
+---
+
+### 📦 Request Body
+
+> ❌ No request body required.
+
+---
+
+## ✅ RESPONSES
+
+### 🔸 If restaurant found
+
+```json
+{
+  "success": true,
+  "restaurant": {
+    "_id": "64ff6c1e2c8f4f001c23e9a9",
+    "restaurantName": "Burger Boss",
+    "city": "Delhi",
+    "state": "Delhi",
+    "imageUrl": "https://res.cloudinary.com/.../image.jpg",
+    ...
+  }
+}
+```
+### If restaurant not found
+```json
+{
+  "success": false,
+  "message": "restaurant not found"
+}
+```
+### If error occurs at backend
+```json
+{
+  "success": false,
+  "message": "Something went wrong"
+}
+```
+## Example use case
+```js
+curl -X GET https://zomato-clone-backend-al0h.onrender.com/api/v1/restaurant/by-id/64ff6c1e2c8f4f001c23e9a9 \
+-H "Authorization: Bearer <JWT_TOKEN>"
+```
