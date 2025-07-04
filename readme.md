@@ -338,13 +338,12 @@ Verifies OTP and resets the user's password. OTP is valid for 5 minutes only
 
 ### 🔗 Full URL `https://zomato-clone-backend-al0h.onrender.com/api/v1/user/reset-password`
 
-
 ---
 
 ### 📥 Request Headers
 
 | Key          | Value            |
-|--------------|------------------|
+| ------------ | ---------------- |
 | Content-Type | application/json |
 
 ---
@@ -362,6 +361,7 @@ Verifies OTP and resets the user's password. OTP is valid for 5 minutes only
 ## RESPONSES =>
 
 ### If successful
+
 ```json
 {
   "succes": true,
@@ -370,14 +370,16 @@ Verifies OTP and resets the user's password. OTP is valid for 5 minutes only
 ```
 
 ### If user not found with email and otp
+
 ```json
 {
   "success": false,
   "message": "User not found"
 }
-``` 
+```
 
 ### If OTP expires
+
 ```json
 {
   "success": false,
@@ -386,6 +388,7 @@ Verifies OTP and resets the user's password. OTP is valid for 5 minutes only
 ```
 
 ### If error occurs at backend
+
 ```json
 {
   "success": false,
@@ -393,7 +396,8 @@ Verifies OTP and resets the user's password. OTP is valid for 5 minutes only
 }
 ```
 
-## Example Use case 
+## Example Use case
+
 ```js
 curl -X POST https://zomato-clone-backend-al0h.onrender.com/api/v1/user/reset-password \
 -H "Content-Type: application/json" \
@@ -403,6 +407,238 @@ curl -X POST https://zomato-clone-backend-al0h.onrender.com/api/v1/user/reset-pa
   "newPassword": "NewSecurePassword123"
 }
 ```
+
+### 🔑 Change Password
+
+## 🔐 POST `/user/change-password`
+
+Allows the user to change their password by providing the **old password** and a **new password**.
+
+---
+
+### 🔗 Full URL `https://zomato-clone-backend-al0h.onrender.com/api/v1/user/change-password`
+
+---
+
+### 📥 Request Headers
+
+| Key           | Value            |
+| ------------- | ---------------- |
+| Content-Type  | application/json |
+| Authorization | Bearer `<JWT>`   |
+
+---
+
+### 📦 Request Payload (Example)
+
+```json
+{
+  "email": "john.doe@example.com",
+  "oldPassword": "OldPass123",
+  "newPassword": "NewSecurePassword456"
+}
+```
+
+## RESPONSES =>
+
+### If Successful
+
+```json
+{
+  "success": true,
+  "message": "Password changed successfully"
+}
+```
+
+### If passowrd not matched
+
+```json
+{
+  "success": false,
+  "message": "Old password is incorrect"
+}
+```
+
+### If error occurs at backend
+
+```json
+{
+  "success": false,
+  "message": "Failed to change password",
+  "from": "change password api",
+  "error": {}
+}
+```
+
+## Example Use case
+
+```js
+curl -X POST https://zomato-clone-backend-al0h.onrender.com/api/v1/user/change-password \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer <JWT_TOKEN>" \
+-d {
+  "email": "john.doe@example.com",
+  "oldPassword": "OldPass123",
+  "newPassword": "NewSecurePassword456"
+}
+```
+
+### 👤 Update User Profile
+
+## 📝 POST `/user/update-profile`
+
+Updates the extended `userProfile` for a user, including nickname, description, preferences, date of birth, and gender.
+
+---
+
+### 🔗 Full URL `https://zomato-clone-backend-al0h.onrender.com/api/v1/user/update-profile`
+
+
+---
+
+### 📥 Request Headers
+
+| Key           | Value             |
+|---------------|------------------|
+| Content-Type  | application/json |
+
+---
+
+### 📦 Request Payload (Example)
+
+```json
+{
+  "email": "john.doe@example.com",
+  "nickname": "Johnny",
+  "description": "Avid foodie",
+  "preferences": ["Italian", "Thai"],
+  "dob": "1995-08-20",
+  "gender": "male"
+}
+```
+
+## RESPONSES =>
+### If Successful
+```json
+{
+  "success": true,
+  "message": "User profile updated",
+  "userProfile": {
+    "email": "john.doe@example.com",
+    "nickname": "Johnny",
+    "description": "Avid foodie",
+    "preferences": ["Italian", "Thai"],
+    "dob": "1995-08-20T00:00:00.000Z",
+    "gender": "male"
+  }
+}
+```
+### If user not found
+```json
+{
+  "success": false,
+  "message": "User not found"
+}
+```
+### If Error occurs at backend
+```json
+{
+  "success": false,
+  "message": "Failed to add userProfile to user data"
+}
+```
+## Example Use case
+```js
+curl -X POST https://zomato-clone-backend-al0h.onrender.com/api/v1/user/update-profile \
+-H "Content-Type: application/json" \
+-d {
+  "email": "john.doe@example.com",
+  "nickname": "Johnny",
+  "description": "Avid foodie",
+  "preferences": ["Italian", "Thai"],
+  "dob": "1995-08-20",
+  "gender": "male"
+}
+```
+
+### 👁️ Get User Profile
+
+## 📄 GET `/user/user-profile`
+
+Fetches the `userProfile` data (nickname, preferences, etc.) for a given user using their email.
+
+---
+
+### 🔗 Full URL `https://zomato-clone-backend-al0h.onrender.com/api/v1/user/user-profile`
+
+
+---
+
+### 📥 Request Headers
+
+| Key           | Value             |
+|---------------|------------------|
+| Content-Type  | application/json |
+
+---
+
+### 🧾 Query Parameter
+
+| Key   | Type   | Required | Description               |
+|-------|--------|----------|---------------------------|
+| email | String | ✅ Yes   | User's registered email   |
+
+**Example:**  
+`/user/user-profile?email=john.doe@example.com`
+
+---
+
+## ✅ RESPONSES
+
+### 🔸 If successful
+
+```json
+{
+  "success": true,
+  "userProfile": {
+    "nickname": "Johnny",
+    "description": "Avid foodie",
+    "preferences": ["Italian", "Thai"],
+    "dob": "1995-08-20T00:00:00.000Z",
+    "gender": "male"
+  }
+}
+```
+### If email not provided
+```json
+{
+  "success": false,
+  "message": "Email is required"
+}
+```
+
+### If user is not found
+```json
+{
+  "success": false,
+  "message": "User profile not found"
+}
+```
+
+### If Error occurs at backend
+```json
+{
+  "success": false,
+  "message": "Server error"
+}
+```
+
+## Example use case
+```js
+curl -X GET "https://zomato-clone-backend-al0h.onrender.com/api/v1/user/user-profile?email=john.doe@example.com" \
+-H "Content-Type: application/json"
+```
+
 
 
 
