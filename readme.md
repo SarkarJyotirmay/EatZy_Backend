@@ -130,6 +130,7 @@ Registers a new user to the platform.
 ```
 
 ### Example Use Case
+```js
 curl -X POST https://zomato-clone-backend-al0h.onrender.com/api/v1/user/register \
 -H "Content-Type: application/json" \
 -d '{
@@ -155,6 +156,7 @@ curl -X POST https://zomato-clone-backend-al0h.onrender.com/api/v1/user/register
     "gender": "male"
   }
 }'
+```
 
 
 ## 🔐 POST `/user/login`
@@ -240,11 +242,13 @@ Authenticates a user and returns a JWT token for future authenticated requests.
 ```
 
 ### Example Use Case
+```js
 curl -X POST https://zomato-clone-backend-al0h.onrender.com/api/v1/user/login \
 -H "Content-Type: application/json" \
 -d '{
   "email": "john.doe@example.com",
   "password": "SecurePass123"
 }'
+```
 
 
