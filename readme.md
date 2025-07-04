@@ -1176,25 +1176,24 @@ Fetches a single restaurant using its MongoDB Object ID.
 
 ### 🔗 Full URL `https://zomato-clone-backend-al0h.onrender.com/api/v1/restaurant/by-id/:id`
 
-** Example URL *** 
+** Example URL \***
 `https://zomato-clone-backend-al0h.onrender.com/api/v1/restaurant/by-id/64ff6c1e2c8f4f001c23e9a9`
-
 
 ---
 
 ### 📥 Request Headers
 
 | Key           | Value                |
-|---------------|----------------------|
+| ------------- | -------------------- |
 | Authorization | Bearer `<JWT_TOKEN>` |
 
 ---
 
 ### 📦 Request Params
 
-| Param | Type   | Required | Description             |
-|-------|--------|----------|-------------------------|
-| `id`  | String | ✅ Yes   | MongoDB Restaurant ID   |
+| Param | Type   | Required | Description           |
+| ----- | ------ | -------- | --------------------- |
+| `id`  | String | ✅ Yes   | MongoDB Restaurant ID |
 
 ---
 
@@ -1221,22 +1220,759 @@ Fetches a single restaurant using its MongoDB Object ID.
   }
 }
 ```
+
 ### If restaurant not found
+
 ```json
 {
   "success": false,
   "message": "restaurant not found"
 }
 ```
+
 ### If error occurs at backend
+
 ```json
 {
   "success": false,
   "message": "Something went wrong"
 }
 ```
+
 ## Example use case
+
 ```js
 curl -X GET https://zomato-clone-backend-al0h.onrender.com/api/v1/restaurant/by-id/64ff6c1e2c8f4f001c23e9a9 \
 -H "Authorization: Bearer <JWT_TOKEN>"
+```
+
+## 🛒 Cart Routes
+
+All routes under `/api/v1/cart` require **JWT authentication**.
+
+### Base URL `https://zomato-clone-backend-al0h.onrender.com/api/v1/cart`
+
+| Method | Endpoint  | Action                               | Payload Required |
+| ------ | --------- | ------------------------------------ | ---------------- |
+| GET    | `/`       | Get the current user's cart          | ❌               |
+| POST   | `/add`    | Add an item to the cart              | ✅               |
+| DELETE | `/remove` | Remove a specific item from the cart | ✅               |
+| PATCH  | `/update` | Update quantity of a cart item       | ✅               |
+| DELETE | `/clear`  | Clear all items in the cart          | ❌               |
+
+### 🛒 Get User's Cart
+
+## 📄 GET `/cart`
+
+Fetches the current logged-in user's cart.  
+If no cart exists yet, returns an empty cart structure instead of an error.
+
+---
+
+### 🔗 Full URL `https://zomato-clone-backend-al0h.onrender.com/api/v1/cart`
+
+---
+
+### 📥 Request Headers
+
+| Key           | Value                |
+| ------------- | -------------------- |
+| Authorization | Bearer `<JWT_TOKEN>` |
+
+---
+
+### 📦 Request Payload
+
+> ❌ No request body required.
+
+---
+
+## ✅ RESPONSES =>
+
+### 🔸 If cart exists for the user
+
+```json
+{
+  "success": true,
+  "data": {
+    "_id": "cart_id",
+    "userId": "user_id",
+    "restaurantId": "restaurant_id",
+    "restaurantName": "Spicy Kitchen",
+    "items": [
+      {
+        "menuItemId": "menu_item_id",
+        "name": "Paneer Tikka",
+        "price": 180,
+        "quantity": 2,
+        "imageUrl": "https://..."
+      }
+    ]
+  }
+}
+```
+
+### If cart not found
+
+```json
+{
+  "success": true,
+  "data": {
+    "userId": "64ff6c1e2c8f4f001c23e9a1",
+    "restaurantId": null,
+    "restaurantName": null,
+    "items": []
+  }
+}
+```
+
+### If backend error occurs
+
+```json
+{
+  "success": false,
+  "message": "Server error"
+}
+```
+
+## Example Use case
+
+```js
+curl -X GET https://zomato-clone-backend-al0h.onrender.com/api/v1/cart
+-H "Authorization: Bearer <JWT_TOKEN>"
+```
+
+### ➕ Add Item to Cart
+
+## 🛒 POST `/cart/add`
+
+Adds a specific menu item from a restaurant to the authenticated user's cart.  
+If a cart already exists, it updates it accordingly. If switching restaurants, the cart is reset.
+
+---
+
+### 🔗 Full URL `https://zomato-clone-backend-al0h.onrender.com/api/v1/cart/add`
+
+---
+
+### 📥 Request Headers
+
+| Key           | Value                |
+| ------------- | -------------------- |
+| Authorization | Bearer `<JWT_TOKEN>` |
+| Content-Type  | application/json     |
+
+---
+
+### 📦 Request Payload
+
+```json
+{
+  "restaurantId": "64ff6c1e2c8f4f001c23e9a9",
+  "menuItemId": "64ff6c7a2c8f4f001c23e9ad"
+}
+```
+
+## RESPONSES =>
+
+### If item successfully added
+
+```json
+{
+  "success": true,
+  "data": {
+    "_id": "cart_id",
+    "userId": "user_id",
+    "restaurantId": "64ff6c1e2c8f4f001c23e9a9",
+    "restaurantName": "Spicy Kitchen",
+    "items": [
+      {
+        "menuItemId": "64ff6c7a2c8f4f001c23e9ad",
+        "name": "Paneer Tikka",
+        "price": 180,
+        "quantity": 2
+      }
+    ]
+  }
+}
+```
+
+### 🔸 If restaurant not found
+
+```json
+{
+  "success": false,
+  "message": "Restaurant not found"
+}
+```
+
+### 🔸 If menu item not found
+
+```json
+{
+  "success": false,
+  "message": "Menu item not found"
+}
+```
+
+### 🔸 If backend/server error
+
+```json
+{
+  "success": false,
+  "message": "Server error"
+}
+```
+
+## Example use cases
+
+```js
+curl -X POST https://zomato-clone-backend-al0h.onrender.com/api/v1/cart/add
+-H "Authorization: Bearer <JWT_TOKEN>" \
+-H "Content-Type: application/json" \
+-d {
+  "restaurantId": "64ff6c1e2c8f4f001c23e9a9",
+  "menuItemId": "64ff6c7a2c8f4f001c23e9ad"
+}
+```
+
+### ❌ Remove Item from Cart
+
+## 🗑️ DELETE `/cart/remove`
+
+Removes a specific item from the authenticated user's cart based on the menu item ID.
+
+---
+
+### 🔗 Full URL `https://zomato-clone-backend-al0h.onrender.com/api/v1/cart/remove`
+
+---
+
+### 📥 Request Headers
+
+| Key           | Value                |
+| ------------- | -------------------- |
+| Authorization | Bearer `<JWT_TOKEN>` |
+| Content-Type  | application/json     |
+
+---
+
+### 📦 Request Payload
+
+```json
+{
+  "menuItemId": "64ff6c7a2c8f4f001c23e9ad"
+}
+```
+
+## ✅ RESPONSES =>
+
+### 🔸 If item is successfully removed
+
+```json
+{
+  "success": true,
+  "data": {
+    "_id": "cart_id",
+    "userId": "user_id",
+    "restaurantId": "64ff6c1e2c8f4f001c23e9a9",
+    "restaurantName": "Spicy Kitchen",
+    "items": []
+  }
+}
+```
+
+### 🔸 If cart not found for user
+
+```json
+{
+  "success": false,
+  "message": "Cart not found"
+}
+```
+
+### 🔸 If backend/server error
+
+```json
+{
+  "success": false,
+  "message": "Server error"
+}
+```
+
+## Example use cases
+
+```js
+curl -X DELETE https://zomato-clone-backend-al0h.onrender.com/api/v1/cart/remove
+-H "Authorization: Bearer <JWT_TOKEN>" \
+-H "Content-Type: application/json" \
+-d {
+  "menuItemId": "64ff6c7a2c8f4f001c23e9ad"
+}
+```
+
+### 🔄 Update Item Quantity in Cart
+
+## 📝 PATCH `/cart/update`
+
+Updates the quantity of a specific menu item in the authenticated user's cart.
+
+---
+
+### 🔗 Full URL `https://zomato-clone-backend-al0h.onrender.com/api/v1/cart/update`
+
+---
+
+### 📥 Request Headers
+
+| Key           | Value                |
+| ------------- | -------------------- |
+| Authorization | Bearer `<JWT_TOKEN>` |
+| Content-Type  | application/json     |
+
+---
+
+### 📦 Request Payload
+
+```json
+{
+  "menuItemId": "64ff6c7a2c8f4f001c23e9ad",
+  "quantity": 3
+}
+```
+
+## ✅ RESPONSES =>
+
+### 🔸 If quantity is successfully updated
+
+```json
+{
+  "success": true,
+  "data": {
+    "_id": "cart_id",
+    "userId": "user_id",
+    "restaurantId": "64ff6c1e2c8f4f001c23e9a9",
+    "restaurantName": "Spicy Kitchen",
+    "items": [
+      {
+        "menuItemId": "64ff6c7a2c8f4f001c23e9ad",
+        "name": "Paneer Tikka",
+        "price": 180,
+        "quantity": 3
+      }
+    ]
+  }
+}
+```
+
+### 🔸 If cart not found
+
+```json
+{
+  "success": false,
+  "message": "Cart not found"
+}
+```
+
+### 🔸 If item is not in the cart
+
+```json
+{
+  "success": false,
+  "message": "Item not in cart"
+}
+```
+
+### 🔸 If backend/server error
+
+```json
+{
+  "success": false,
+  "message": "Server error"
+}
+```
+
+## Example use cases
+
+```js
+curl -X PATCH https://zomato-clone-backend-al0h.onrender.com/api/v1/cart/update
+-H "Authorization: Bearer <JWT_TOKEN>" \
+-H "Content-Type: application/json" \
+-d {
+  "menuItemId": "64ff6c7a2c8f4f001c23e9ad",
+  "quantity": 3
+}
+```
+
+### 🧹 Clear Entire Cart
+
+## 🗑️ DELETE `/cart/clear`
+
+Clears all items from the authenticated user's cart.
+
+---
+
+### 🔗 Full URL `https://zomato-clone-backend-al0h.onrender.com/api/v1/cart/clear`
+
+---
+
+### 📥 Request Headers
+
+| Key           | Value                |
+| ------------- | -------------------- |
+| Authorization | Bearer `<JWT_TOKEN>` |
+| Content-Type  | application/json     |
+
+---
+
+### 📦 Request Payload
+
+_No request body required._
+
+---
+
+## ✅ RESPONSES
+
+### 🔸 If cart is successfully cleared
+
+```json
+{
+  "success": true,
+  "data": {
+    "_id": "cart_id",
+    "userId": "user_id",
+    "restaurantId": "64ff6c1e2c8f4f001c23e9a9",
+    "restaurantName": "Spicy Kitchen",
+    "items": []
+  }
+}
+```
+
+### 🔸 If cart not found
+
+```json
+{
+  "success": false,
+  "message": "Cart not found"
+}
+```
+
+### 🔸 If backend/server error
+
+```json
+{
+  "success": false,
+  "message": "Server error"
+}
+```
+
+## Example use cases
+
+```js
+curl -X DELETE https://zomato-clone-backend-al0h.onrender.com/api/v1/cart/clear
+-H "Authorization: Bearer <JWT_TOKEN>" \
+-H "Content-Type: application/json"
+```
+
+## 📦 Order Module Endpoints
+
+All routes under `/api/v1/order` require **JWT authentication**.
+
+### Base URL `https://zomato-clone-backend-al0h.onrender.com/api/v1/order`
+
+| HTTP Method | Endpoint         | Description                      | Payload Required |
+| ----------- | ---------------- | -------------------------------- | ---------------- |
+| POST        | /order/place     | Place a new order from cart      | ✅               |
+| GET         | /order/my-orders | Get all orders of logged-in user | ❌               |
+
+### 🛒 Place an Order
+
+## 📝 POST `/order/place`
+
+Places a new order using the items in the authenticated user's cart.
+
+---
+
+### 🔗 Full URL `https://zomato-clone-backend-al0h.onrender.com/api/v1/order/place`
+
+---
+
+### 📥 Request Headers
+
+| Key           | Value                |
+| ------------- | -------------------- |
+| Authorization | Bearer `<JWT_TOKEN>` |
+| Content-Type  | application/json     |
+
+---
+
+### 📦 Request Payload
+
+> The endpoint uses the user's saved address by default. However, a custom address can be sent in the payload as follows:
+
+```json
+{
+  "address": {
+    "addressLine1": "123 Main St",
+    "addressLine2": "Apt 4B",
+    "landmark": "Near Metro Station",
+    "city": "Kolkata",
+    "state": "West Bengal",
+    "pincode": "700001"
+  }
+}
+```
+
+## ✅ RESPONSES =>
+
+### 🔸 If order is successfully placed
+
+```json
+{
+  "success": true,
+  "data": {
+    "_id": "order_id",
+    "userId": "user_id",
+    "restaurantId": "64ff6c1e2c8f4f001c23e9a9",
+    "restaurantName": "Spicy Kitchen",
+    "items": [
+      {
+        "menuItemId": "64ff6c7a2c8f4f001c23e9ad",
+        "name": "Paneer Tikka",
+        "price": 180,
+        "quantity": 2
+      }
+    ],
+    "deliveryPrice": 40,
+    "totalAmount": 400,
+    "address": {
+      "addressLine1": "123 Main St",
+      "addressLine2": "Apt 4B",
+      "landmark": "Near Metro Station",
+      "city": "Kolkata",
+      "state": "West Bengal",
+      "pincode": "700001"
+    },
+    "createdAt": "2025-07-04T10:12:00.123Z"
+  }
+}
+```
+
+### 🔸 If cart is empty
+
+```json
+{
+  "success": false,
+  "message": "Cart is empty"
+}
+```
+
+### 🔸 If restaurant not found
+
+```json
+{
+  "success": false,
+  "message": "Restaurant not found"
+}
+```
+
+### 🔸 If backend/server error
+
+```json
+{
+  "success": false,
+  "message": "Server error"
+}
+```
+
+## Example use case
+
+```js
+curl -X POST https://zomato-clone-backend-al0h.onrender.com/api/v1/order/place \
+-H "Authorization: Bearer <JWT_TOKEN>" \
+-H "Content-Type: application/json" \
+-d
+{
+  "address": {
+    "addressLine1": "123 Main St",
+    "addressLine2": "Apt 4B",
+    "landmark": "Near Metro Station",
+    "city": "Kolkata",
+    "state": "West Bengal",
+    "pincode": "700001"
+  }
+}
+```
+
+### 📦 Get My Orders
+
+## 📄 GET `/order/my-orders`
+
+Fetches all orders placed by the authenticated user, sorted by newest first.
+
+---
+
+### 🔗 Full URL `https://zomato-clone-backend-al0h.onrender.com/api/v1/order/my-orders`
+
+---
+
+### 📥 Request Headers
+
+| Key           | Value                |
+| ------------- | -------------------- |
+| Authorization | Bearer `<JWT_TOKEN>` |
+| Content-Type  | application/json     |
+
+---
+
+### 📦 Request Payload
+
+_None required._
+
+---
+
+## ✅ RESPONSES
+
+### 🔸 If orders are successfully fetched
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "_id": "order_id_1",
+      "userId": "user_id",
+      "restaurantId": "64ff6c1e2c8f4f001c23e9a9",
+      "restaurantName": "Spicy Kitchen",
+      "items": [
+        {
+          "menuItemId": "64ff6c7a2c8f4f001c23e9ad",
+          "name": "Paneer Tikka",
+          "price": 180,
+          "quantity": 2
+        }
+      ],
+      "deliveryPrice": 40,
+      "totalAmount": 400,
+      "address": {
+        "addressLine1": "123 Main St",
+        "addressLine2": "Apt 4B",
+        "landmark": "Near Metro Station",
+        "city": "Kolkata",
+        "state": "West Bengal",
+        "pincode": "700001"
+      },
+      "createdAt": "2025-07-04T10:12:00.123Z"
+    },
+    {
+      "_id": "order_id_2",
+      ...
+    }
+  ]
+}
+```
+
+### 🔸 If server error occurs
+
+```json
+{
+  "success": false,
+  "message": "Server error"
+}
+```
+
+## Example use case
+
+```js
+curl -X GET https://zomato-clone-backend-al0h.onrender.com/api/v1/order/my-orders
+-H "Authorization: Bearer <JWT_TOKEN>" \
+-H "Content-Type: application/json"
+```
+
+## 🛒 Payment Module Routes
+
+### 💳 Create Razorpay Payment Order
+
+## 📄 POST `/payment/create`
+
+Creates a new Razorpay payment order for the authenticated user using the total amount (in **paise** – ₹1 = 100).
+
+---
+
+### 🔗 Full URL `https://zomato-clone-backend-al0h.onrender.com/api/v1/payment/create`
+
+### 💳 Payment Module — Routes Table
+
+| Method | Endpoint          | Description                     | Payload Required |
+| ------ | ----------------- | ------------------------------- | ---------------- |
+| POST   | `/payment/create` | Create a Razorpay payment order | ✅ Yes           |
+
+---
+
+### 📥 Request Headers
+
+| Key           | Value                |
+| ------------- | -------------------- |
+| Authorization | Bearer `<JWT_TOKEN>` |
+| Content-Type  | application/json     |
+
+---
+
+### 📦 Request Payload
+
+```json
+{
+  "totalAmount": 49900
+}
+💡 Note: The amount must be in paise.
+Example: ₹499.00 should be passed as 49900.
+```
+
+## ✅ RESPONSES =>
+
+🔸 On successful Razorpay order creation
+
+```json
+{
+  "success": true,
+  "order": {
+    "id": "order_Lu6KuWxyz1234",
+    "entity": "order",
+    "amount": 49900,
+    "currency": "INR",
+    "receipt": "receipt_order_1720078621349",
+    "status": "created",
+    "created_at": 1712345678
+  }
+}
+```
+
+### 🔸 If totalAmount is missing
+
+```json
+{
+  "success": false,
+  "message": "Amount is required"
+}
+```
+
+### 🔸 If Razorpay throws an internal error
+
+```json
+{
+  "success": false,
+  "message": "Payment order creation failed"
+}
+```
+
+## Example use cases
+
+```js
+curl -X POST https://zomato-clone-backend-al0h.onrender.com/api/v1/payment/create \
+-H "Authorization: Bearer <JWT_TOKEN>" \
+-H "Content-Type: application/json" \
+-d {
+  "totalAmount": 49900 // in paisa
+}
+
 ```
