@@ -46,10 +46,11 @@ export const login = async (req, res) => {
     if (!user) {
       console.log(`user not found`);
 
-      return res.status(500).json({
+      return res.json({
         success: false,
-        message: "User not found in DB",
+        message: "No user found",
         from: "login API",
+
       });
     }
     // if password not matched
@@ -57,7 +58,7 @@ export const login = async (req, res) => {
     if (!passMatched) {
       console.log(`pass not matched`);
 
-      return res.status(401).json({
+      return res.json({
         success: false,
         message: "Wrong password",
         from: "login API",
