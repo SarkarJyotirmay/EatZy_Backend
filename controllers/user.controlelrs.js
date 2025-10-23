@@ -13,7 +13,9 @@ export const register = async (req, res) => {
         message: "User is already registered",
       });
     }
-    const newUser = await UserModel.create({ ...req.body, user: "CUSTOMER" });
+    // console.log("Register user => ", req.body);
+    
+    const newUser = await UserModel.create({ ...req.body, role: "CUSTOMER" });
     res.json({
       succes: true,
       message: "Registration successfull",
@@ -50,7 +52,6 @@ export const login = async (req, res) => {
         success: false,
         message: "No user found",
         from: "login API",
-
       });
     }
     // if password not matched
@@ -130,7 +131,7 @@ export const resetPassword = async (req, res) => {
       email: req.body.email,
       passwordOTP: req.body.otp,
     });
-    
+
     if (!user) {
       return res.status(400).json({
         success: false,
@@ -203,7 +204,6 @@ export const updateUserProfile = async (req, res) => {
 
     const user = await UserModel.findOne({ email });
     // console.log("User: ", user);
-    
 
     if (!user) {
       return res.status(400).json({
@@ -241,12 +241,13 @@ export const updateUserProfile = async (req, res) => {
   }
 };
 
-
 export const getUserProfile = async (req, res) => {
   try {
     const { email } = req.query;
     if (!email) {
-      return res.status(400).json({ success: false, message: "Email is required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Email is required" });
     }
 
     const user = await UserModel.findOne({ email });
@@ -269,4 +270,3 @@ export const getUserProfile = async (req, res) => {
     });
   }
 };
-
